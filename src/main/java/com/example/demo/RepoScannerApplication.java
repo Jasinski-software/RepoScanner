@@ -12,9 +12,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-
 @SpringBootApplication
 public class RepoScannerApplication implements CommandLineRunner{
+	public static final String APIBASE = "https://api.github.com/users/";
+	
 	public static void main(String[] args) {
 		SpringApplication.run(RepoScannerApplication.class, args);
 	}
@@ -22,7 +23,6 @@ public class RepoScannerApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 		System.out.println("========== Welcome to GitHub Scanner ==========");
-		String api = "https://api.github.com/users/";
 		Scanner scanner = new Scanner(System.in);
 		
 		System.out.println("Which user's repositories do you want to scan?");
@@ -33,7 +33,7 @@ public class RepoScannerApplication implements CommandLineRunner{
 		HttpClient client = HttpClient.newBuilder().build();
 		
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(new URI(api + kek.userName + "/repos"))
+				.uri(new URI(APIBASE + kek.userName + "/repos"))
 				.GET()
 				.build();
 		
