@@ -27,35 +27,36 @@ public class RepoScannerApplication implements CommandLineRunner{
 		
 		System.out.println("Which user's repositories do you want to scan?");
 		System.out.print("User name: ");
-		GitUser kek = new GitUser(scanner.nextLine());
+		GitUser gitUser = new GitUser(scanner.nextLine());
 		scanner.close();
 		
 		HttpClient client = HttpClient.newBuilder().build();
 		
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(new URI(APIBASE + kek.userName + "/repos"))
+		HttpRequest reposRequest = HttpRequest.newBuilder()
+				.uri(new URI(APIBASE + gitUser.userName + "/repos"))
+				.header("Accept", "application/json")
 				.GET()
 				.build();
 		
-		HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+		HttpResponse<String> response = client.send(reposRequest, BodyHandlers.ofString());
 				
 		JSONArray repos = new JSONArray(response.body());
-		System.out.println("User "+ kek.userName + " has " + repos.length() + " repositories.\n");
+		System.out.println("User "+ gitUser.userName + " has " + repos.length() + " repositories.\n");
 		
 		
 		for(int x = 0, idx = 0; x < repos.length(); x++) {
 			
 			if (repos.getJSONObject(x).get("fork").toString() == "false") {
-				kek.repositories.add(repos.getJSONObject(x).get("name").toString());
+				gitUser.repositories.add(repos.getJSONObject(x).get("name").toString());
 								
 				HttpRequest newRequest = HttpRequest.newBuilder()
-						.uri(new URI("https://api.github.com/repos/" + kek.userName + "/" + kek.repositories.get(idx) + "/branches"))
+						.uri(new URI("https://api.github.com/repos/" + gitUser.userName + "/" + gitUser.repositories.get(idx) + "/branches"))
 						.GET()
 						.build();
 				HttpResponse<String> newResponse = client.send(newRequest, BodyHandlers.ofString());
 				
 				JSONArray branches = new JSONArray(newResponse.body());
-				System.out.println("Repository: " + kek.repositories.get(idx) + " has " + branches.length() + " branch(es):");
+				System.out.println("Repository: " + gitUser.repositories.get(idx) + " has " + branches.length() + " branch(es):");
 				
 				for(int y = 0; y < branches.length(); y++) {
 					String branchName = branches.getJSONObject(y).get("name").toString();					
